@@ -1,32 +1,28 @@
 import { PetPost, PetPostStatus } from '../../../data/postgres/models/pet-post.model';
 import { PostgresDatabase } from '../../../data/postgres/DatabaseSingleton';
-import { envs } from '../../../config/envs';
 
 export class ApproverPetPostService {
   private readonly petPostRepository;
 
   constructor() {
-    const postgresDB = new PostgresDatabase({
-      host: envs.PGHOST,
-      port: envs.PGPORT,
-      username: envs.PGUSER,
-      password: envs.PGPASSWORD,
-      database: envs.PGDATABASE,
-    });
-
-    this.petPostRepository = postgresDB.dataSource.getRepository(PetPost);
+    // Se obtiene la instancia única del singleton
+    const postgresDB = PostgresDatabase.getInstance();
+    // Se obtiene el repositorio de PetPost mediante el método getRepository()
+    this.petPostRepository = postgresDB.getRepository(PetPost);
   }
 
   async execute(id: string): Promise<PetPost | null> {
     try {
-      await this.petPostRepository.manager.connection.initialize();
-      
+      // Se asegura de inicializar la conexión a la base de datos
+      const postgresDB = PostgresDatabase.getInstance();
+      await postgresDB.connect();
+
       const petPost = await this.petPostRepository.findOneBy({ id });
       if (!petPost) return null;
-      
+
       petPost.status = PetPostStatus.APPROVED;
       await this.petPostRepository.save(petPost);
-      
+
       return petPost;
     } catch (error) {
       console.error('Error approving pet post:', error);

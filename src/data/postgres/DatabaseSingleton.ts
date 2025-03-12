@@ -5,8 +5,6 @@ import { envs } from '../../config/envs';
 // src/data/postgres/postgres-database.ts
 export { DatabaseSingleton as PostgresDatabase } from './DatabaseSingleton';
 
-
-
 /**
  * Singleton para la conexión a la base de datos
  * Esta clase garantiza que solo haya una instancia de conexión 
@@ -34,12 +32,11 @@ export class DatabaseSingleton {
   /**
    * Obtiene la instancia única del singleton
    */
-  
-  public static getInstance(): DatabaseSingleton  {
-    if (!DatabaseSingleton .instance) {
-      DatabaseSingleton  .instance = new DatabaseSingleton ();
+  public static getInstance(): DatabaseSingleton {
+    if (!DatabaseSingleton.instance) {
+      DatabaseSingleton.instance = new DatabaseSingleton();
     }
-    return DatabaseSingleton .instance;
+    return DatabaseSingleton.instance;
   }
 
   /**
@@ -59,12 +56,19 @@ export class DatabaseSingleton {
   }
 
   /**
-   * Obtiene el DataSource de TypeORM
+   * Obtiene el DataSource de TypeORM (con validación de conexión inicializada)
    */
   public get dataSourceInstance(): DataSource {
     if (!this.isInitialized) {
       throw new Error('Database connection is not initialized. Call connect() first.');
     }
+    return this.dataSource;
+  }
+
+  /**
+   * Obtiene el DataSource sin validación adicional
+   */
+  public getDataSource(): DataSource {
     return this.dataSource;
   }
 

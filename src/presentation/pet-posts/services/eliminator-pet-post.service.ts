@@ -1,25 +1,21 @@
+// src/presentation/pet-posts/services/eliminator-pet-post.service.ts
 import { PetPost } from '../../../data/postgres/models/pet-post.model';
 import { PostgresDatabase } from '../../../data/postgres/DatabaseSingleton';
-import { envs } from '../../../config/envs';
 
 export class EliminatorPetPostService {
   private readonly petPostRepository;
 
   constructor() {
-    const postgresDB = new PostgresDatabase({
-      host: envs.PGHOST,
-      port: envs.PGPORT,
-      username: envs.PGUSER,
-      password: envs.PGPASSWORD,
-      database: envs.PGDATABASE,
-    });
-
-    this.petPostRepository = postgresDB.dataSource.getRepository(PetPost);
+    // Se obtiene la instancia única del singleton y se utiliza getRepository() para obtener el repositorio de PetPost
+    const postgresDB = PostgresDatabase.getInstance();
+    this.petPostRepository = postgresDB.getRepository(PetPost);
   }
 
   async execute(id: string): Promise<boolean> {
     try {
-      await this.petPostRepository.manager.connection.initialize();
+      // Se asegura de inicializar la conexión a la base de datos
+      const postgresDB = PostgresDatabase.getInstance();
+      await postgresDB.connect();
       
       const petPost = await this.petPostRepository.findOneBy({ id });
       if (!petPost) return false;

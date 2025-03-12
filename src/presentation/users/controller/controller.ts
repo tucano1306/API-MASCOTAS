@@ -30,6 +30,7 @@ export class UserController {
     return res.status(501).json({ message: 'not yet implemented' });
   };
 
+  // Añade el método para obtener todos los usuarios
   findUsers = async (req: Request, res: Response) => {
     try {
       const result = await this.finderUsersService.execute();
@@ -54,6 +55,7 @@ export class UserController {
     }
   };
 
+  // Añade el método para actualizar un usuario
   updateUser = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -69,6 +71,7 @@ export class UserController {
     }
   };
 
+  // Añade el método para eliminar un usuario
   deleteUser = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;

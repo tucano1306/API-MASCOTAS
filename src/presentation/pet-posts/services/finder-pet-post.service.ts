@@ -1,25 +1,22 @@
 import { PetPost } from '../../../data/postgres/models/pet-post.model';
 import { PostgresDatabase } from '../../../data/postgres/DatabaseSingleton';
-import { envs } from '../../../config/envs';
 
 export class FinderPetPostService {
   private readonly petPostRepository;
 
   constructor() {
-    const postgresDB = new PostgresDatabase({
-      host: envs.PGHOST,
-      port: envs.PGPORT,
-      username: envs.PGUSER,
-      password: envs.PGPASSWORD,
-      database: envs.PGDATABASE,
-    });
-
-    this.petPostRepository = postgresDB.dataSource.getRepository(PetPost);
+    // Se obtiene la instancia única del singleton
+    const postgresDB = PostgresDatabase.getInstance();
+    // Se obtiene el repositorio para PetPost mediante getRepository()
+    this.petPostRepository = postgresDB.getRepository(PetPost);
   }
 
   async execute(id: string): Promise<PetPost | null> {
     try {
-      await this.petPostRepository.manager.connection.initialize();
+      // Se asegura de inicializar la conexión si aún no está establecida
+      const postgresDB = PostgresDatabase.getInstance();
+      await postgresDB.connect();
+
       const petPost = await this.petPostRepository.findOne({
         where: { id },
         relations: ['user']
