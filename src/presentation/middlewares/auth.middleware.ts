@@ -18,7 +18,8 @@ declare global {
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   // Obtener el token de los headers
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const authHeader = req.header('Authorization');
+  const token = authHeader?.replace('Bearer ', '');
 
   if (!token) {
     return res.status(401).json({
@@ -29,7 +30,11 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
   try {
     // Verificar el token
-    const decoded = jwt.verify(token, envs.JWT_SECRET) as any;
+    const decoded = jwt.verify(token, envs.JWT_SECRET) as {
+      id: string;
+      email: string;
+      role: UserRole;
+    };
     
     // Asignar la información del usuario decodificada a la solicitud
     req.user = {

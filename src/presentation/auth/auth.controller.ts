@@ -9,31 +9,6 @@ export class AuthController {
   ) {}
 
   /**
-   * Registra un nuevo usuario
-   */
-  public register = async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const registerDto = req.body as RegisterUserDto;
-      const user = await this.authService.register(registerDto);
-      
-      // Eliminar la contraseña del objeto de respuesta
-      const { password, ...result } = user;
-      
-      return res.status(201).json({
-        status: 'success',
-        message: 'User registered successfully',
-        data: result
-      });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Error registering user';
-      return res.status(400).json({
-        status: 'error',
-        message
-      });
-    }
-  };
-
-  /**
    * Inicia sesión con un usuario existente
    */
   public login = async (req: Request, res: Response): Promise<Response> => {

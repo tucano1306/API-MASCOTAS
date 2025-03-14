@@ -1,10 +1,17 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsDate, IsUUID } from 'class-validator';
-import { Type } from 'class-transformer';
+import { 
+  IsString, 
+  IsNotEmpty, 
+  IsOptional, 
+  IsEnum, 
+  IsBoolean, 
+  IsUUID 
+} from 'class-validator';
+import { PetPostStatus } from '../../data/postgres/models/pet-post.model'; // Importación desde el modelo real
 
 export class CreatePetPostDto {
   @IsString()
   @IsNotEmpty()
-  title: string;
+  pet_name: string;
 
   @IsString()
   @IsNotEmpty()
@@ -12,25 +19,17 @@ export class CreatePetPostDto {
 
   @IsString()
   @IsOptional()
-  petImage?: string;
+  image_url?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  petType: string; // Por ejemplo: "perro", "gato", etc.
-
-  @IsString()
-  @IsNotEmpty()
-  petName: string;
-
-  @IsString()
-  @IsNotEmpty()
-  location: string;
-
-  @IsDate()
-  @Type(() => Date)
+  @IsEnum(PetPostStatus)
   @IsOptional()
-  lostDate?: Date;
+  status?: PetPostStatus = PetPostStatus.PENDING;
+
+  @IsBoolean()
+  @IsOptional()
+  hasFound?: boolean = false;
 
   @IsUUID()
-  userId: string; // ID del usuario que crea la publicación
+  @IsNotEmpty()
+  user_id: string;
 }

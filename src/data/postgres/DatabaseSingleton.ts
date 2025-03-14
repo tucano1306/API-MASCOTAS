@@ -18,14 +18,11 @@ export class DatabaseSingleton {
   private constructor() {
     this.dataSource = new DataSource({
       type: 'postgres',
-      host: envs.POSTGRES_HOST,
-      port: envs.POSTGRES_PORT,
-      username: envs.POSTGRES_USER,
-      password: envs.POSTGRES_PASSWORD,
-      database: envs.POSTGRES_DB,
+      url: envs.POSTGRES_URL, // Usa solo la URL completa
       entities: [User, PetPost],
-      synchronize: envs.NODE_ENV === 'development', // Solo para desarrollo
+      synchronize: envs.NODE_ENV === 'development',
       logging: envs.NODE_ENV === 'development',
+      ssl: true
     });
   }
 

@@ -21,42 +21,22 @@ export class AuthService {
   }
 
   /**
-   * Registra un nuevo usuario
+   * Genera un token JWT
    */
-  public async register(registerDto: RegisterUserDto): Promise<User> {
-    try {
-      // Verificar si el usuario ya existe
-      const existingUser = await this.userRepository.findOne({
-        where: { email: registerDto.email }
-      });
-
-      if (existingUser) {
-        throw new Error('User already exists');
-      }
-
-      // Encriptar la contraseña
-      const hashedPassword = await hash(registerDto.password, 10);
-
-      // Crear el nuevo usuario
-      const newUser = this.userRepository.create({
-        ...registerDto,
-        password: hashedPassword,
-        role: UserRole.USER,
-        status: true
-      });
-
-      // Guardar el usuario en la base de datos
-      return await this.userRepository.save(newUser);
-    } catch (error) {
-      console.error('Error registering user:', error);
-      throw error;
-    }
+  private generateJwt(payload: JwtPayload): string {
+    return jwt.sign(
+      payload, 
+      envs.JWT_SECRET as Secret, // Usa una aserción de tipo
+      {
+        expiresIn: envs.JWT_EXPIRES_IN
+      } as SignOptions // Aserción de tipo para las opciones
+    );
   }
 
   /**
    * Inicia sesión con un usuario existente
    */
-  public async login(loginDto: LoginUserDto): Promise<{ user: User; token: string }> {
+  public async login(loginDto: LoginUserDto): Promise<{ user: Partial<User>; token: string }> {
     try {
       // Buscar el usuario por email
       const user = await this.userRepository.findOne({
@@ -84,7 +64,6 @@ export class AuthService {
       const { password, ...userWithoutPassword } = user;
 
       return {
-        // @ts-ignore: Ignorar el error de tipo aquí
         user: userWithoutPassword,
         token
       };
@@ -103,22 +82,5 @@ export class AuthService {
     } catch (error) {
       return null;
     }
-  }
-
-  /**
-   * Genera un token JWT
-   */
- /**
- * Genera un token JWT
- */
- private generateJwt(payload: JwtPayload): string {
-    return jwt.sign(
-      payload, 
-      envs.JWT_SECRET as any,
-      {
-        // Usar 'as any' para evitar problemas de tipado
-        expiresIn: envs.JWT_EXPIRES_IN as any
-      }
-    );
   }
 }
