@@ -10,29 +10,36 @@ export class AuthRoutes {
   static get routes(): Router {
     const router = Router();
     
-    // Crear servicios
+    
     const authService = new AuthService();
     
-    // Crear controladores con inyección de dependencias
+  
     const controller = new AuthController(authService);
     
-    // Definir rutas
+    
     router.post(
       '/register',
       validationMiddleware(RegisterUserDto),
-      controller.register
+      (req, res, next) => {
+        
+        controller.register(req, res).catch(next);
+      }
     );
     
     router.post(
       '/login',
       validationMiddleware(LoginUserDto),
-      controller.login
+      (req, res, next) => {
+        controller.login(req, res).catch(next);
+      }
     );
     
     router.get(
       '/validate-token',
       authMiddleware,
-      controller.validateToken
+      (req, res, next) => {
+        controller.validateToken(req, res).catch(next);
+      }
     );
     
     return router;

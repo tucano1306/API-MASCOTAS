@@ -8,16 +8,16 @@ export class RegisterUserService {
 
   constructor() {
     const postgresDB = PostgresDatabase.getInstance();
-    // Use dataSourceInstance to get the repository
+    
     this.userRepository = postgresDB.dataSourceInstance.getRepository(User);
   }
 
   async execute(userData: RegisterUserDto): Promise<User> {
     try {
-      // Ensure the database connection is established
+    
       const postgresDB = PostgresDatabase.getInstance();
       
-      // If not already connected, connect
+      
       if (!postgresDB.dataSourceInstance.isInitialized) {
         await postgresDB.connect();
       }

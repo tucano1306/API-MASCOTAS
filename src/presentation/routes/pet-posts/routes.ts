@@ -12,7 +12,7 @@ export class PetPostRoutes {
   static get routes(): Router {
     const router = Router();
     
-    // Servicios
+    
     const finderPetPostService = new FinderPetPostService();
     const finderPetPostsService = new FinderPetPostsService();
     const creatorPetPostService = new CreatorPetPostService();
@@ -21,7 +21,7 @@ export class PetPostRoutes {
     const approverPetPostService = new ApproverPetPostService();
     const rejecterPetPostService = new RejecterPetPostService();
     
-    // Controlador con inyección de dependencias
+    
     const controller = new PetPostController(
       finderPetPostService,
       finderPetPostsService,
@@ -32,7 +32,7 @@ export class PetPostRoutes {
       rejecterPetPostService
     );
     
-    // Definición de rutas de publicaciones de mascotas (ver imagen 3)
+    
     router.post('/', controller.createPetPost);
     router.get('/', controller.findPetPosts);
     router.get('/:id', controller.findPetPost);

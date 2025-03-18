@@ -5,14 +5,14 @@ export class RejecterPetPostService {
   private readonly petPostRepository;
 
   constructor() {
-    // Se obtiene la instancia única del singleton y se utiliza getRepository() para obtener el repositorio de PetPost
+    
     const postgresDB = PostgresDatabase.getInstance();
     this.petPostRepository = postgresDB.getRepository(PetPost);
   }
 
   async execute(id: string): Promise<PetPost | null> {
     try {
-      // Se asegura de inicializar la conexión a la base de datos
+      
       const postgresDB = PostgresDatabase.getInstance();
       await postgresDB.connect();
 

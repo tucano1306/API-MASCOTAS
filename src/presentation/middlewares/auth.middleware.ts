@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { envs } from '../../config/envs';
 import { UserRole } from '../../data/postgres/models/user.model';
 
-// Extender el tipo Request para incluir el usuario
+
 declare global {
   namespace Express {
     interface Request {
@@ -17,7 +17,7 @@ declare global {
 }
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  // Obtener el token de los headers
+  
   const authHeader = req.header('Authorization');
   const token = authHeader?.replace('Bearer ', '');
 
@@ -29,14 +29,14 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   }
 
   try {
-    // Verificar el token
+    
     const decoded = jwt.verify(token, envs.JWT_SECRET) as {
       id: string;
       email: string;
       role: UserRole;
     };
     
-    // Asignar la información del usuario decodificada a la solicitud
+    
     req.user = {
       id: decoded.id,
       email: decoded.email,
@@ -52,7 +52,6 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   }
 };
 
-// Middleware para verificar roles
 export const roleMiddleware = (allowedRoles: UserRole[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {

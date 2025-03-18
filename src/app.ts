@@ -15,30 +15,30 @@ export class App {
   }
 
   private config(): void {
-    // Configuración de middlewares básicos
+    
     this.app.use(cors());
     this.app.use(helmet());
     this.app.use(express.json());
+    this.app.options('*', cors());
     this.app.use(express.urlencoded({ extended: true }));
   }
 
   public async start(): Promise<void> {
     try {
-      // Primero, conectamos a la base de datos
+      
       const db = DatabaseSingleton.getInstance();
       await db.connect();
       console.log('Database connected successfully');
 
-      // Luego, importamos dinámicamente las rutas, de modo que los servicios
-      // que se instancien en ellas ya encuentren la conexión activa
+      
       const { AppRoutes } = await import('./presentation/routes');
 
-      // Configuramos las rutas de la API y los middlewares de error
+      
       this.app.use('/api', AppRoutes.routes);
       this.app.use('*', notFoundMiddleware);
       this.app.use(errorMiddleware);
 
-      // Iniciamos el servidor
+      
       this.app.listen(envs.PORT, () => {
         console.log(`Server running on port ${envs.PORT}`);
       });

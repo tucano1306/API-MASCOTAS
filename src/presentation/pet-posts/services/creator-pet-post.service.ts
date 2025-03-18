@@ -1,4 +1,3 @@
-// src/presentation/pet-posts/services/creator-pet-post.service.ts
 import { PetPost, PetPostStatus } from '../../../data/postgres/models/pet-post.model';
 import { PostgresDatabase } from '../../../data/postgres/DatabaseSingleton';
 
@@ -13,15 +12,15 @@ export class CreatorPetPostService {
   private readonly petPostRepository;
 
   constructor() {
-    // Se obtiene la instancia única del singleton sin pasar argumentos
+  
     const postgresDB = PostgresDatabase.getInstance();
-    // Se obtiene el repositorio de PetPost mediante getRepository()
+    
     this.petPostRepository = postgresDB.getRepository(PetPost);
   }
 
   async execute(petPostData: CreatePetPostDTO): Promise<PetPost> {
     try {
-      // Se asegura de que la conexión a la base de datos esté inicializada
+      
       const postgresDB = PostgresDatabase.getInstance();
       await postgresDB.connect();
 

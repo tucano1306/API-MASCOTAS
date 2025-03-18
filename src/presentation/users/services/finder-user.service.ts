@@ -6,10 +6,10 @@ export class FinderUserService {
   private readonly userRepository: Repository<User>;
 
   constructor() {
-    // Usar el método estático getInstance() en lugar del constructor
+    
     const db = DatabaseSingleton.getInstance();
     
-    // Obtener el repositorio desde la instancia
+    
     this.userRepository = db.dataSourceInstance.getRepository(User);
   }
 

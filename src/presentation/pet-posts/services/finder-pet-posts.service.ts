@@ -5,15 +5,15 @@ export class FinderPetPostsService {
   private readonly petPostRepository;
 
   constructor() {
-    // Se obtiene la instancia única del singleton
+    
     const postgresDB = PostgresDatabase.getInstance();
-    // Se obtiene el repositorio de PetPost mediante el método getRepository
+    
     this.petPostRepository = postgresDB.getRepository(PetPost);
   }
 
   async execute(): Promise<PetPost[]> {
     try {
-      // Se asegura de que la conexión esté inicializada
+      
       await PostgresDatabase.getInstance().connect();
 
       const petPosts = await this.petPostRepository.find({

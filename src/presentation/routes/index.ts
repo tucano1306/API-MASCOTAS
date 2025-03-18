@@ -6,10 +6,10 @@ export class AppRoutes {
   static get routes(): Router {
     const router = Router();
 
-    // Rutas de usuarios
+    
     router.use('/users', UserRoutes.routes);
     
-    // Rutas de publicaciones de mascotas
+  
     router.use('/pet-posts', PetPostRoutes.routes);
 
     return router;

@@ -20,25 +20,48 @@ export class AuthService {
     this.userRepository = repoService.getUserRepository();
   }
 
-  /**
-   * Genera un token JWT
-   */
+  
   private generateJwt(payload: JwtPayload): string {
     return jwt.sign(
       payload, 
-      envs.JWT_SECRET as Secret, // Usa una aserción de tipo
-      {
-        expiresIn: envs.JWT_EXPIRES_IN
-      } as SignOptions // Aserción de tipo para las opciones
+      envs.JWT_SECRET as Secret, 
+      { expiresIn: envs.JWT_EXPIRES_IN } as SignOptions
     );
   }
 
-  /**
-   * Inicia sesión con un usuario existente
-   */
+  
+  public async register(registerDto: RegisterUserDto): Promise<{ user: Partial<User>; token: string }> {
+    try {
+      
+      const hashedPassword = await hash(registerDto.password, 10);
+
+      
+      const newUser = await this.userRepository.create({
+        ...registerDto,
+        password: hashedPassword,
+        role: UserRole.USER 
+      });
+
+      
+      const token = this.generateJwt({
+        id: newUser.id,
+        email: newUser.email,
+        role: newUser.role
+      });
+
+      
+      const { password, ...userWithoutPassword } = newUser;
+
+      return { user: userWithoutPassword, token };
+    } catch (error) {
+      console.error('Error registrando el usuario:', error);
+      throw new Error('Error al registrar el usuario');
+    }
+  }
+
+  
   public async login(loginDto: LoginUserDto): Promise<{ user: Partial<User>; token: string }> {
     try {
-      // Buscar el usuario por email
       const user = await this.userRepository.findOne({
         where: { email: loginDto.email, status: true }
       });
@@ -47,20 +70,17 @@ export class AuthService {
         throw new Error('Invalid credentials');
       }
 
-      // Verificar la contraseña
       const isPasswordValid = await compare(loginDto.password, user.password);
       if (!isPasswordValid) {
         throw new Error('Invalid credentials');
       }
 
-      // Generar token JWT
       const token = this.generateJwt({
         id: user.id,
         email: user.email,
         role: user.role
       });
 
-      // Eliminar la contraseña del objeto de usuario antes de devolverlo
       const { password, ...userWithoutPassword } = user;
 
       return {
@@ -73,9 +93,7 @@ export class AuthService {
     }
   }
 
-  /**
-   * Valida un token JWT
-   */
+  
   public validateToken(token: string): JwtPayload | null {
     try {
       return jwt.verify(token, envs.JWT_SECRET) as JwtPayload;

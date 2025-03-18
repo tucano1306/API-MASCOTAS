@@ -13,15 +13,15 @@ export class UpdaterUserService {
   private readonly userRepository;
 
   constructor() {
-    // Se obtiene la instancia del singleton sin argumentos
+    
     const postgresDB = PostgresDatabase.getInstance();
-    // Se obtiene el repositorio de User utilizando el método getRepository
+    
     this.userRepository = postgresDB.getRepository(User);
   }
 
   async execute(id: string, userData: UpdateUserDTO): Promise<User | null> {
     try {
-      // Se obtiene nuevamente la instancia y se inicializa la conexión si aún no lo está
+      
       const postgresDB = PostgresDatabase.getInstance();
       await postgresDB.connect();
       

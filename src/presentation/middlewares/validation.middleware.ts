@@ -4,23 +4,27 @@ import { plainToInstance } from 'class-transformer';
 
 export const validationMiddleware = (dto: any, skipMissingProperties = false) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    // Convertir el objeto de la solicitud (req.body) a la instancia del DTO
-    const dtoObj = plainToInstance(dto, req.body);
+    console.log('Datos recibidos:', req.body); 
+
+
+    const dtoObj = plainToInstance(dto, req.body, { 
+      enableImplicitConversion: true 
+    });
     
-    // Validar el DTO con class-validator
-    const errors = await validate(dtoObj, { skipMissingProperties });
+    
+    const errors = await validate(dtoObj, { 
+      skipMissingProperties,
+      whitelist: true, 
+      forbidNonWhitelisted: true 
+    });
 
     if (errors.length > 0) {
-      // Extraer y formatear los errores de validación
-      const formattedErrors = errors.map((error) => {
-        const constraints = error.constraints ? Object.values(error.constraints) : [];
-        return {
-          property: error.property,
-          errors: constraints
-        };
-      });
+      
+      const formattedErrors = errors.map((error) => ({
+        property: error.property,
+        constraints: error.constraints ? Object.values(error.constraints) : []
+      }));
 
-      // Enviar respuesta con errores de validación
       return res.status(400).json({
         status: 'error',
         message: 'Validation failed',
@@ -28,7 +32,7 @@ export const validationMiddleware = (dto: any, skipMissingProperties = false) =>
       });
     }
 
-    // Asignar el objeto validado al req.body
+    
     req.body = dtoObj;
     next();
   };

@@ -2,14 +2,8 @@ import { DataSource, ObjectLiteral, Repository } from 'typeorm';
 import { User } from './models/user.model';
 import { PetPost } from './models/pet-post.model';
 import { envs } from '../../config/envs';
-// src/data/postgres/postgres-database.ts
 export { DatabaseSingleton as PostgresDatabase } from './DatabaseSingleton';
 
-/**
- * Singleton para la conexión a la base de datos
- * Esta clase garantiza que solo haya una instancia de conexión 
- * a la base de datos en toda la aplicación
- */
 export class DatabaseSingleton {
   private static instance: DatabaseSingleton;
   private dataSource: DataSource;
@@ -18,7 +12,7 @@ export class DatabaseSingleton {
   private constructor() {
     this.dataSource = new DataSource({
       type: 'postgres',
-      url: envs.POSTGRES_URL, // Usa solo la URL completa
+      url: envs.POSTGRES_URL, 
       entities: [User, PetPost],
       synchronize: envs.NODE_ENV === 'development',
       logging: envs.NODE_ENV === 'development',
@@ -26,9 +20,7 @@ export class DatabaseSingleton {
     });
   }
 
-  /**
-   * Obtiene la instancia única del singleton
-   */
+  
   public static getInstance(): DatabaseSingleton {
     if (!DatabaseSingleton.instance) {
       DatabaseSingleton.instance = new DatabaseSingleton();
@@ -36,9 +28,7 @@ export class DatabaseSingleton {
     return DatabaseSingleton.instance;
   }
 
-  /**
-   * Inicializa la conexión a la base de datos
-   */
+  
   public async connect(): Promise<void> {
     if (!this.isInitialized) {
       try {
@@ -52,9 +42,9 @@ export class DatabaseSingleton {
     }
   }
 
-  /**
-   * Obtiene el DataSource de TypeORM (con validación de conexión inicializada)
-   */
+  
+   
+   
   public get dataSourceInstance(): DataSource {
     if (!this.isInitialized) {
       throw new Error('Database connection is not initialized. Call connect() first.');
@@ -62,16 +52,12 @@ export class DatabaseSingleton {
     return this.dataSource;
   }
 
-  /**
-   * Obtiene el DataSource sin validación adicional
-   */
+  
   public getDataSource(): DataSource {
     return this.dataSource;
   }
 
-  /**
-   * Cierra la conexión a la base de datos
-   */
+  
   public async close(): Promise<void> {
     if (this.isInitialized && this.dataSource.isInitialized) {
       await this.dataSource.destroy();
@@ -80,9 +66,7 @@ export class DatabaseSingleton {
     }
   }
 
-  /**
-   * Obtiene un repositorio específico
-   */
+  
   public getRepository<T extends ObjectLiteral>(entity: new () => T): Repository<T> {
     if (!this.isInitialized) {
       throw new Error('Database connection is not initialized. Call connect() first.');

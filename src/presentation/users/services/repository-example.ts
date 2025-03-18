@@ -1,14 +1,12 @@
 import { User } from '../../../data/postgres/models/user.model';
 import { RepositoryService } from '../../../data/postgres/repository.service';
 
-/**
- * Ejemplo de servicio que utiliza el RepositoryService centralizado
- */
+
 export class UserService {
   private readonly userRepository;
 
   constructor() {
-    // Obtener el repositorio del servicio centralizado
+    
     const repoService = RepositoryService.getInstance();
     this.userRepository = repoService.getUserRepository();
   }

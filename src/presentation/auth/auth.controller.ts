@@ -3,14 +3,33 @@ import { AuthService } from './auth.service';
 import { RegisterUserDto } from '../../domain/dtos/register-user.dto';
 import { LoginUserDto } from '../../domain/dtos/login-user.dto';
 
+
 export class AuthController {
   constructor(
     private readonly authService: AuthService
   ) {}
 
-  /**
-   * Inicia sesión con un usuario existente
-   */
+  
+  public register = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const registerDto = req.body as RegisterUserDto;
+      const { user, token } = await this.authService.register(registerDto);
+      
+      return res.status(201).json({
+        status: 'success',
+        message: 'User registered successfully',
+        data: { user, token }
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error registering user';
+      return res.status(400).json({
+        status: 'error',
+        message
+      });
+    }
+  };
+
+  
   public login = async (req: Request, res: Response): Promise<Response> => {
     try {
       const loginDto = req.body as LoginUserDto;
@@ -33,13 +52,10 @@ export class AuthController {
     }
   };
 
-  /**
-   * Verifica si un token es válido
-   */
+  
   public validateToken = async (req: Request, res: Response): Promise<Response> => {
     try {
-      // El middleware de autenticación ya verificó el token
-      // y agregó el usuario a la solicitud
+      
       return res.status(200).json({
         status: 'success',
         message: 'Token is valid',

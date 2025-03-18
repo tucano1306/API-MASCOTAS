@@ -12,15 +12,15 @@ export class UpdaterPetPostService {
   private readonly petPostRepository;
 
   constructor() {
-    // Se obtiene la instancia única del singleton
+    
     const postgresDB = PostgresDatabase.getInstance();
-    // Se obtiene el repositorio de PetPost mediante el método getRepository()
+    
     this.petPostRepository = postgresDB.getRepository(PetPost);
   }
 
   async execute(id: string, petPostData: UpdatePetPostDTO): Promise<PetPost | null> {
     try {
-      // Se asegura de que la conexión a la base de datos esté inicializada
+      
       const postgresDB = PostgresDatabase.getInstance();
       await postgresDB.connect();
       
