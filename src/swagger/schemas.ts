@@ -1,5 +1,20 @@
 /**
  * @swagger
+ * * components:
+ *   schemas:
+ *     Error:
+ *       type: object
+ *       properties:
+ *         status:
+ *           type: string
+ *           example: error
+ *         message:
+ *           type: string
+ *           example: Mensaje de error detallado
+ *             required:
+ *             - status
+ *                 - message
+ * 
  * components:
  *   schemas:
  *     UserRole:

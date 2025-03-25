@@ -7,69 +7,16 @@ const swaggerOptions: swaggerJSDoc.Options = {
     info: {
       title: 'API de Mascotas Perdidas',
       version: '1.0.0',
-      description: 'API para gestionar publicaciones de mascotas perdidas y facilitar su búsqueda',
-      contact: {
-        name: 'Tu Nombre',
-        email: 'tu@email.com'
-      }
+      description: 'API para gestionar publicaciones de mascotas perdidas'
     },
     servers: [
       {
-        url: `http://localhost:${envs.PORT}/api`,
+        url: `/api`,
         description: 'Servidor de desarrollo'
-      }
-    ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT'
-        }
-      },
-      schemas: {
-        Error: {
-          type: 'object',
-          properties: {
-            status: {
-              type: 'string',
-              example: 'error'
-            },
-            message: {
-              type: 'string',
-              example: 'Mensaje de error'
-            }
-          }
-        }
-      }
-    },
-    security: [
-      {
-        bearerAuth: []
-      }
-    ],
-    tags: [
-      {
-        name: 'Auth',
-        description: 'Endpoints de autenticación'
-      },
-      {
-        name: 'Users',
-        description: 'Operaciones relacionadas con usuarios'
-      },
-      {
-        name: 'PetPosts',
-        description: 'Operaciones relacionadas con publicaciones de mascotas'
       }
     ]
   },
   apis: [
-    './src/presentation/routes/**/*.ts',
-    './src/domain/dtos/**/*.ts',
-    './src/data/postgres/models/**/*.ts',
-    './src/presentation/auth/**/*.ts',
-    './src/presentation/pet-posts/**/*.ts',
-    './src/presentation/users/**/*.ts',
     './src/swagger/*.ts'
   ]
 };
