@@ -7,9 +7,16 @@ import { UpdaterPetPostService } from '../../pet-posts/services/updater-pet-post
 import { EliminatorPetPostService } from '../../pet-posts/services/eliminator-pet-post.service';
 import { ApproverPetPostService } from '../../pet-posts/services/approver-pet-post.service';
 import { RejecterPetPostService } from '../../pet-posts/services/rejecter-pet-post.service';
+import { authMiddleware, roleMiddleware } from '../../middlewares/auth.middleware';
+import { UserRole } from '../../../data/postgres/models/user.model';
+import { validationMiddleware } from '../../middlewares/validation.middleware';
+import { CreatePetPostDto } from '../../dtos/create-pet-post.dto';
+import { UpdatePetPostDto } from '../../dtos/update-pet-post.dto';
+import { ApproveRejectPetPostDto } from '../../dtos/approve-reject-pet-post.dto';
 
 export class PetPostRoutes {
   static get routes(): Router {
+  
     const router = Router();
     
     
@@ -33,13 +40,51 @@ export class PetPostRoutes {
     );
     
     
-    router.post('/', controller.createPetPost);
-    router.get('/', controller.findPetPosts);
-    router.get('/:id', controller.findPetPost);
-    router.patch('/:id', controller.updatePetPost);
-    router.delete('/:id', controller.deletePetPost);
-    router.patch('/:id/approve', controller.approvePetPost);
-    router.patch('/:id/reject', controller.rejectPetPost);
+    router.post(
+      '/', 
+      authMiddleware,
+      validationMiddleware(CreatePetPostDto),
+      controller.createPetPost
+    );
+    
+    router.get(
+      '/', 
+      authMiddleware,
+      controller.findPetPosts
+    );
+    
+    router.get(
+      '/:id', 
+      authMiddleware,
+      controller.findPetPost
+    );
+    
+    router.patch(
+      '/:id', 
+      authMiddleware,
+      validationMiddleware(UpdatePetPostDto, true),
+      controller.updatePetPost
+    );
+    
+    router.delete(
+      '/:id', 
+      authMiddleware,
+      controller.deletePetPost
+    );
+    
+    router.patch(
+      '/:id/approve', 
+      authMiddleware,
+      roleMiddleware([UserRole.ADMIN]),
+      controller.approvePetPost
+    );
+    
+    router.patch(
+      '/:id/reject', 
+      authMiddleware,
+      roleMiddleware([UserRole.ADMIN]),
+      controller.rejectPetPost
+    );
     
     return router;
   }

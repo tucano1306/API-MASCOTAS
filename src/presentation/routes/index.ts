@@ -9,7 +9,7 @@ export class AppRoutes {
     
     router.use('/users', UserRoutes.routes);
     
-  
+    
     router.use('/pet-posts', PetPostRoutes.routes);
 
     return router;

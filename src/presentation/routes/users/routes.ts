@@ -6,12 +6,18 @@ import { RegisterUserService } from '../../users/services/register-user.service'
 import { LoginUserService } from '../../users/services/login-user.service';
 import { UpdaterUserService } from '../../users/services/updater-user.service';
 import { EliminatorUserService } from '../../users/services/eliminator-user.service';
+import { validationMiddleware } from '../../middlewares/validation.middleware';
+import { authMiddleware, roleMiddleware } from '../../middlewares/auth.middleware';
+import { RegisterUserDto } from '../../../domain/dtos/register-user.dto';
+import { LoginUserDto } from '../../../domain/dtos/login-user.dto';
+import { UpdateUserDto } from '../../../domain/dtos/update-user.dto';
+import { UserRole } from '../../../data/postgres/models/user.model';
 
 export class UserRoutes {
   static get routes(): Router {
     const router = Router();
     
-    // Servicios
+    
     const finderUserService = new FinderUserService();
     const finderUsersService = new FinderUsersService();
     const registerUserService = new RegisterUserService();
@@ -19,7 +25,7 @@ export class UserRoutes {
     const updaterUserService = new UpdaterUserService();
     const eliminatorUserService = new EliminatorUserService();
     
-    // Controlador con inyección de dependencias
+    
     const controller = new UserController(
       finderUserService,
       finderUsersService,
@@ -29,13 +35,46 @@ export class UserRoutes {
       eliminatorUserService
     );
     
-    // Definición de rutas de usuarios (ver imagen 2)
-    router.post('/register', controller.register);
-    router.post('/login', controller.login);
-    router.get('/', controller.findUsers);
-    router.get('/:id', controller.findUser);
-    router.patch('/:id', controller.updateUser);
-    router.delete('/:id', controller.deleteUser);
+    
+    router.post(
+      '/register', 
+      validationMiddleware(RegisterUserDto),
+      controller.register
+    );
+    
+    router.post(
+      '/login', 
+      validationMiddleware(LoginUserDto),
+      controller.login
+    );
+    
+    
+    router.get(
+      '/', 
+      authMiddleware,
+      roleMiddleware([UserRole.ADMIN]),
+      controller.findUsers
+    );
+    
+    router.get(
+      '/:id', 
+      authMiddleware,
+      controller.findUser
+    );
+    
+    router.patch(
+      '/:id', 
+      authMiddleware,
+      validationMiddleware(UpdateUserDto, true),
+      controller.updateUser
+    );
+    
+    router.delete(
+      '/:id', 
+      authMiddleware,
+      roleMiddleware([UserRole.ADMIN]),
+      controller.deleteUser
+    );
     
     return router;
   }

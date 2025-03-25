@@ -21,22 +21,40 @@ export class UserController {
       const result = await this.registerUserService.execute(req.body);
       return res.status(201).json(result);
     } catch (error) {
-      return res.status(500).json({ message: 'Internal server error' });
+      const message = error instanceof Error ? error.message : 'Error interno del servidor';
+      return res.status(500).json({ 
+        status: 'error',
+        message 
+      });
     }
   };
 
   login = async (req: Request, res: Response) => {
-    
-    return res.status(501).json({ message: 'not yet implemented' });
+    try {
+      const result = await this.loginUserService.execute(req.body);
+      return res.status(200).json(result);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error de autenticación';
+      return res.status(401).json({ 
+        status: 'error', 
+        message 
+      });
+    }
   };
 
-  
   findUsers = async (req: Request, res: Response) => {
     try {
       const result = await this.finderUsersService.execute();
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: 'success',
+        data: result
+      });
     } catch (error) {
-      return res.status(500).json({ message: 'Internal server error' });
+      const message = error instanceof Error ? error.message : 'Error interno del servidor';
+      return res.status(500).json({ 
+        status: 'error',
+        message 
+      });
     }
   };
 
@@ -46,31 +64,59 @@ export class UserController {
       const result = await this.finderUserService.execute(id);
       
       if (!result) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({
+          status: 'error',
+          message: 'Usuario no encontrado'
+        });
       }
       
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: 'success',
+        data: result
+      });
     } catch (error) {
-      return res.status(500).json({ message: 'Internal server error' });
+      const message = error instanceof Error ? error.message : 'Error interno del servidor';
+      return res.status(500).json({ 
+        status: 'error',
+        message 
+      });
     }
   };
 
-  
   updateUser = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
+      
+      
+      if (id !== req.user!.id && req.user!.role !== 'admin') {
+        return res.status(403).json({
+          status: 'error',
+          message: 'No tienes permiso para actualizar este usuario'
+        });
+      }
+      
       const result = await this.updaterUserService.execute(id, req.body);
       
       if (!result) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({
+          status: 'error',
+          message: 'Usuario no encontrado'
+        });
       }
       
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: 'success',
+        message: 'Usuario actualizado exitosamente',
+        data: result
+      });
     } catch (error) {
-      return res.status(500).json({ message: 'Internal server error' });
+      const message = error instanceof Error ? error.message : 'Error interno del servidor';
+      return res.status(500).json({ 
+        status: 'error',
+        message 
+      });
     }
   };
-
 
   deleteUser = async (req: Request, res: Response) => {
     try {
@@ -78,12 +124,22 @@ export class UserController {
       const result = await this.eliminatorUserService.execute(id);
       
       if (!result) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({
+          status: 'error',
+          message: 'Usuario no encontrado'
+        });
       }
       
-      return res.status(200).json({ message: 'User deleted successfully' });
+      return res.status(200).json({
+        status: 'success',
+        message: 'Usuario eliminado exitosamente'
+      });
     } catch (error) {
-      return res.status(500).json({ message: 'Internal server error' });
+      const message = error instanceof Error ? error.message : 'Error interno del servidor';
+      return res.status(500).json({ 
+        status: 'error',
+        message 
+      });
     }
   };
 }

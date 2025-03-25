@@ -24,7 +24,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   if (!token) {
     return res.status(401).json({
       status: 'error',
-      message: 'Authentication token is required'
+      message: 'Autenticación requerida - Token no proporcionado'
     });
   }
 
@@ -47,24 +47,25 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   } catch (error) {
     return res.status(401).json({
       status: 'error',
-      message: 'Invalid or expired token'
+      message: 'Token inválido o expirado'
     });
   }
 };
+
 
 export const roleMiddleware = (allowedRoles: UserRole[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({
         status: 'error',
-        message: 'Authentication required'
+        message: 'Autenticación requerida'
       });
     }
 
     if (!allowedRoles.includes(req.user.role)) {
       return res.status(403).json({
         status: 'error',
-        message: 'You do not have permission to perform this action'
+        message: 'No tienes permiso para realizar esta acción'
       });
     }
 
