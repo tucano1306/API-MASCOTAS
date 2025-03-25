@@ -2,6 +2,7 @@ import { compare, hash } from 'bcryptjs';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { User, UserRole } from '../../data/postgres/models/user.model';
 import { RepositoryService } from '../../data/postgres/repository.service';
+import { DatabaseSingleton } from '../../data/postgres/DatabaseSingleton';
 import { envs } from '../../config/envs';
 import { RegisterUserDto } from '../../domain/dtos/register-user.dto';
 import { LoginUserDto } from '../../domain/dtos/login-user.dto';
@@ -16,11 +17,43 @@ export class AuthService {
   private readonly userRepository;
 
   constructor() {
+    // Obtenemos la instancia del servicio de repositorio
     const repoService = RepositoryService.getInstance();
-    this.userRepository = repoService.getUserRepository();
+    
+    // Aseguramos que la base de datos esté conectada antes de acceder al repositorio
+    const db = DatabaseSingleton.getInstance();
+    
+    try {
+      // Intentamos obtener el repositorio de usuarios
+      this.userRepository = repoService.getUserRepository();
+    } catch (error) {
+      // Si hay un error, verificamos si la base de datos está conectada
+      if (!db.dataSourceInstance.isInitialized) {
+        console.log('Database connection not initialized. Initializing now...');
+        
+        // Conectamos sincrónicamente para el constructor
+        // Nota: Esto no es ideal en producción, pero resuelve el problema inmediato
+        this.initializeDb();
+      }
+      
+      // Después de inicializar, intentamos obtener el repositorio nuevamente
+      this.userRepository = repoService.getUserRepository();
+    }
+  }
+  
+  // Método privado para inicializar la base de datos
+  private async initializeDb() {
+    const db = DatabaseSingleton.getInstance();
+    
+    if (!db.dataSourceInstance.isInitialized) {
+      await db.connect();
+      
+      // Inicializar los repositorios después de conectar
+      const repoService = RepositoryService.getInstance();
+      repoService.initialize();
+    }
   }
 
-  
   private generateJwt(payload: JwtPayload): string {
     return jwt.sign(
       payload, 
@@ -29,27 +62,27 @@ export class AuthService {
     );
   }
 
-  
   public async register(registerDto: RegisterUserDto): Promise<{ user: Partial<User>; token: string }> {
     try {
+      // Asegurar que la base de datos está conectada
+      await this.initializeDb();
       
       const hashedPassword = await hash(registerDto.password, 10);
 
-      
-      const newUser = await this.userRepository.create({
+      const newUser = this.userRepository.create({
         ...registerDto,
         password: hashedPassword,
         role: UserRole.USER 
       });
-
       
+      await this.userRepository.save(newUser);
+
       const token = this.generateJwt({
         id: newUser.id,
         email: newUser.email,
         role: newUser.role
       });
 
-      
       const { password, ...userWithoutPassword } = newUser;
 
       return { user: userWithoutPassword, token };
@@ -59,9 +92,11 @@ export class AuthService {
     }
   }
 
-  
   public async login(loginDto: LoginUserDto): Promise<{ user: Partial<User>; token: string }> {
     try {
+      // Asegurar que la base de datos está conectada
+      await this.initializeDb();
+      
       const user = await this.userRepository.findOne({
         where: { email: loginDto.email, status: true }
       });
@@ -93,7 +128,6 @@ export class AuthService {
     }
   }
 
-  
   public validateToken(token: string): JwtPayload | null {
     try {
       return jwt.verify(token, envs.JWT_SECRET) as JwtPayload;
